@@ -3,199 +3,53 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Hydrogen (H)</title>
+<title>Atomic Structure</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
---bg:#0a0d1a;--panel:#131833;--line:#262d55;--text:#e9ecf8;--muted:#8f98c0;--plus:#f4b860;--minus:#6aa8ff;
-color-scheme:dark}
-:root[data-theme="light"],:root:not([data-theme="light"]){--bg:#0a0d1a}
+--bg:#0a0d1a;--panel:#131833;--line:#262d55;--text:#e9ecf8;--muted:#8f98c0;--plus:#f4b860;color-scheme:dark}
 *,*:before,*:after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--text);font:17px/1.55 "Newsreader",Georgia,"Times New Roman",serif;max-width:760px;margin-inline:auto}
-header{padding:18px 18px 8px}
-h1{font:500 32px/1.15 "Newsreader",Georgia,serif;letter-spacing:-.01em;margin:0 0 4px}
-header p{margin:0;color:var(--muted);font-size:14px}
-#stage{position:relative;width:calc(100% - 24px);aspect-ratio:1/1;max-height:520px;min-height:300px;margin:8px 12px;border:1px solid var(--line);border-radius:18px;
-background:radial-gradient(circle at 50% 45%,#1b2250 0,#0a0d1a 70%);overflow:hidden;touch-action:none}
-canvas{width:100%;height:100%;display:block}
-#hint{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:12px;color:var(--muted);pointer-events:none}
-section{margin:14px 12px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:14px}
-h2{font:500 16px/1.3 "Newsreader",Georgia,serif;margin:0 0 8px;color:var(--muted)}
-.chips,.seg{display:flex;flex-wrap:wrap;gap:8px}
-button{font:inherit;font-size:15px;color:var(--text);background:transparent;border:1px solid var(--line);border-radius:999px;padding:8px 14px;min-height:40px;cursor:pointer}
-button:focus-visible{outline:2px solid var(--plus);outline-offset:2px}
-button[aria-pressed="true"]{background:var(--plus);color:#1a1300;border-color:var(--plus);font-weight:600}
-button:disabled{opacity:.4;cursor:not-allowed}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.k{font-size:13px;color:var(--muted)}.v{font-size:19px;font-weight:500}
-.note{font-size:14px;color:var(--text);margin:0}
-.props{margin:0;padding-left:20px}.props li{margin-bottom:8px;font-size:16px}
-.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-footer{padding:4px 18px 24px;color:var(--muted);font-size:12px}
+body{margin:0;background:radial-gradient(circle at 50% 0,#1b2250 0,#0a0d1a 55%) no-repeat,var(--bg);color:var(--text);
+font:17px/1.55 "Newsreader",Georgia,"Times New Roman",serif;max-width:760px;margin-inline:auto;min-height:100vh}
+header{padding:28px 18px 10px}
+h1{font:500 34px/1.15 "Newsreader",Georgia,serif;letter-spacing:-.01em;margin:0 0 6px}
+header p{margin:0;color:var(--muted)}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;padding:14px 14px 8px}
+.el{display:flex;flex-direction:column;justify-content:space-between;min-height:96px;padding:9px 11px;border-radius:14px;
+border:1px solid var(--line);background:var(--panel);color:var(--text);text-decoration:none}
+.el .n{font-size:13px;color:var(--muted)}
+.el .s{font-size:30px;font-weight:500;line-height:1}
+.el .m{font-size:13px;color:var(--muted)}
+a.el.live{border-color:var(--plus);box-shadow:0 0 18px rgba(244,184,96,.22)}
+a.el.live .s{color:var(--plus)}
+a.el.live:hover,a.el.live:focus-visible{background:#1b2250;outline:none}
+.el.soon{opacity:.45}
+footer{padding:10px 18px 30px;color:var(--muted);font-size:14px}
 </style>
 </head>
 <body>
 <header>
-<h1>Hydrogen (H)</h1>
-<p>Atomic number 1</p>
+<h1>Atomic Structure</h1>
+<p>Choose an element to explore its electron orbitals.</p>
 </header>
-
-<div id="stage"><canvas id="c"></canvas><div id="hint">Drag to rotate. Pinch or scroll to zoom.</div></div>
-
-<section>
-<h2>How much of the electron cloud?</h2>
-<div class="seg" id="pct"></div>
-<div class="row" style="margin-top:10px"><span class="k" id="radiusTxt"></span>
-<button id="axBtn" aria-pressed="true">Axes on</button></div>
-</section>
-
-<section>
-<div class="grid">
-<div><div class="k">Element</div><div class="v">Hydrogen (H), Z = 1</div></div>
-<div><div class="k">Orbital</div><div class="v" id="oName">1s</div></div>
-<div><div class="k">Quantum numbers</div><div class="v" id="oQ">n=1, l=0, m=0</div></div>
-<div><div class="k">Configuration</div><div class="v" id="oCfg">1s¹</div></div>
-</div>
-<h2 style="margin-top:16px">About hydrogen</h2>
-<ul class="props">
-<li>The lightest element, with an atomic mass of about 1.008 u.</li>
-<li>Its common form has no neutrons, just one proton and one electron.</li>
-<li>A colourless, odourless gas (H₂) at room temperature.</li>
-<li>The most abundant element in the universe, about three quarters of ordinary matter by mass.</li>
-<li>Placed in group 1, yet a nonmetal.</li>
-</ul>
-</section>
-
-<footer>Distances are in Bohr radii (a₀), about 0.053 nm each.</footer>
-
+<div id="grid"></div>
+<footer>Gold elements are ready to explore. The rest are coming soon.</footer>
 <script>
-// No external libraries: everything is drawn with the browser's built-in 2D canvas, so it works on any phone.
-// Orbital data: add new orbitals here (shape drawing gets added later).
-const ORBITALS = [
-  {id:'1s', n:1,l:0,m:0, cfg:'1s¹', ready:true,
-   desc:'A perfect sphere. It looks the same from every direction, and it has one sign only (gold), so there is a single lobe.',
-   // radius (in a0) enclosing 50/90/99% of the electron, solved from the hydrogen 1s wavefunction
-   r:{50:1.34, 90:2.66, 99:4.20}}
-  // Later elements will add their orbitals here.
-];
-
-const cv=document.getElementById('c'), ctx=cv.getContext('2d'), stage=document.getElementById('stage');
-let W=320,H=320,dpr=1,dist=15,rx=.45,ry=-.6,showAxes=true,dragging=false;
-let cur=ORBITALS[0], pct=90;
-
-function resize(){
-  const b=stage.getBoundingClientRect();
-  W=Math.max(200,b.width||320);H=Math.max(200,b.height||W);
-  dpr=Math.min(window.devicePixelRatio||1,2);
-  cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
-}
-addEventListener('resize',resize);
-if(window.ResizeObserver)new ResizeObserver(resize).observe(stage);
-resize();setTimeout(resize,300);
-
-// 3D helpers: rotate a point, then project it with perspective
-function rot(p){
-  const cy=Math.cos(ry),sy=Math.sin(ry),cx=Math.cos(rx),sx=Math.sin(rx);
-  const x1=p[0]*cy+p[2]*sy, z1=-p[0]*sy+p[2]*cy;
-  return [x1, p[1]*cx-z1*sx, p[1]*sx+z1*cx];
-}
-function focal(){return .5*H/Math.tan(22.5*Math.PI/180);}
-function proj(q){const k=focal()/(dist-q[2]);return [W/2+q[0]*k,H/2-q[1]*k];}
-
-// Wireframe circles of a sphere (latitude and longitude rings)
-function rings(r){
-  const out=[],N=48;
-  for(let lat=-60;lat<=60;lat+=30){const la=lat*Math.PI/180,pts=[];
-    for(let i=0;i<=N;i++){const a=i/N*2*Math.PI;pts.push([r*Math.cos(la)*Math.cos(a),r*Math.sin(la),r*Math.cos(la)*Math.sin(a)]);}out.push(pts);}
-  for(let lon=0;lon<180;lon+=30){const lo=lon*Math.PI/180,pts=[];
-    for(let i=0;i<=N;i++){const a=i/N*2*Math.PI;pts.push([r*Math.cos(a)*Math.cos(lo),r*Math.sin(a),r*Math.cos(a)*Math.sin(lo)]);}out.push(pts);}
-  return out;
-}
-function drawRings(r,front){
-  ctx.lineWidth=1;
-  rings(r).forEach(pts=>{
-    const q=pts.map(rot);
-    for(let i=0;i<q.length-1;i++){
-      const isFront=(q[i][2]+q[i+1][2])/2>=0;
-      if(isFront!==front)continue;
-      const a=proj(q[i]),b=proj(q[i+1]);
-      ctx.strokeStyle=isFront?'rgba(255,217,160,.30)':'rgba(255,217,160,.10)';
-      ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();
-    }
-  });
-}
-const L=5, AX=[[1,0,0,'x'],[0,1,0,'y'],[0,0,1,'z']];
-function drawAxes(front){
-  if(!showAxes)return;
-  ctx.lineWidth=1.5;
-  AX.forEach(a=>[1,-1].forEach(s=>{
-    const end=rot([a[0]*L*s,a[1]*L*s,a[2]*L*s]);
-    if((end[2]>=0)!==front)return;
-    const o=proj([0,0,0]),e=proj(end);
-    ctx.strokeStyle=front?'rgba(160,170,210,.85)':'rgba(160,170,210,.35)';
-    ctx.beginPath();ctx.moveTo(o[0],o[1]);ctx.lineTo(e[0],e[1]);ctx.stroke();
-  }));
-}
-function drawLabels(){
-  if(!showAxes)return;
-  ctx.font='italic 500 17px Newsreader,Georgia,serif';ctx.textAlign='center';ctx.textBaseline='middle';
-  AX.forEach(a=>{
-    const q=rot([a[0]*(L+.7),a[1]*(L+.7),a[2]*(L+.7)]),p=proj(q);
-    ctx.fillStyle=q[2]>=0?'#d5dbf5':'#7d86ad';ctx.fillText(a[3],p[0],p[1]);
-  });
-}
-function drawSphere(r){
-  const R=r*focal()/Math.sqrt(dist*dist-r*r), cx=W/2, cy=H/2;
-  const g=ctx.createRadialGradient(cx-R*.3,cy-R*.35,R*.05,cx,cy,R);
-  g.addColorStop(0,'rgba(255,232,190,.60)');g.addColorStop(1,'rgba(244,184,96,.26)');
-  ctx.save();ctx.shadowColor='rgba(244,184,96,.55)';ctx.shadowBlur=28;
-  ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.fill();ctx.restore();
-  ctx.strokeStyle='rgba(255,217,160,.55)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.stroke();
-}
-function frame(){
-  ctx.clearRect(0,0,W,H);
-  const r=cur.r[pct];
-  drawAxes(false);drawRings(r,false);   // parts behind the balloon
-  drawSphere(r);
-  drawRings(r,true);drawAxes(true);      // parts in front of it
-  const o=proj([0,0,0]);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(o[0],o[1],3,0,7);ctx.fill();
-  drawLabels();
-}
-
-// ---- UI
-const seg=document.getElementById('pct'), axBtn=document.getElementById('axBtn');
-[50,90,99].forEach(p=>{
-  const b=document.createElement('button');b.textContent=p+'%';b.setAttribute('aria-pressed',p===pct);
-  b.onclick=()=>{pct=p;[...seg.children].forEach(x=>x.setAttribute('aria-pressed',x===b));info();};
-  seg.appendChild(b);
+// Add an element here, and set live:true once its page (e.g. helium.html) exists.
+const ELEMENTS=[
+["H","Hydrogen",true,"hydrogen.html"],["He","Helium",true,"helium.html"],["Li","Lithium"],["Be","Beryllium"],["B","Boron"],
+["C","Carbon"],["N","Nitrogen"],["O","Oxygen"],["F","Fluorine"],["Ne","Neon"],
+["Na","Sodium"],["Mg","Magnesium"],["Al","Aluminium"],["Si","Silicon"],["P","Phosphorus"],
+["S","Sulfur"],["Cl","Chlorine"],["Ar","Argon"],["K","Potassium"],["Ca","Calcium"]];
+const g=document.getElementById('grid');
+ELEMENTS.forEach((e,i)=>{
+  const live=!!e[2],c=document.createElement(live?'a':'div');
+  c.className='el '+(live?'live':'soon');if(live)c.href=e[3];
+  c.innerHTML=`<span class="n">${i+1}</span><span class="s">${e[0]}</span><span class="m">${e[1]}</span>`;
+  g.appendChild(c);
 });
-axBtn.onclick=()=>{showAxes=axBtn.getAttribute('aria-pressed')!=='true';axBtn.setAttribute('aria-pressed',showAxes);axBtn.textContent=showAxes?'Axes on':'Axes off';};
-function info(){
-  const r=cur.r[pct];
-  document.getElementById('oName').textContent=cur.id;
-  document.getElementById('oQ').textContent=`n=${cur.n}, l=${cur.l}, m=${cur.m}`;
-  document.getElementById('oCfg').textContent=cur.cfg;
-  document.getElementById('radiusTxt').textContent=`Radius: ${r} a₀ holds ${pct}% of the electron`;
-}
-info();
-
-// ---- Drag to rotate, pinch or wheel to zoom
-const pts=new Map();let lastPinch=0;
-stage.addEventListener('pointerdown',e=>{stage.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});dragging=true;});
-stage.addEventListener('pointermove',e=>{
-  const p=pts.get(e.pointerId);if(!p)return;
-  const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
-  if(pts.size===1){ry+=dx*.008;rx=Math.max(-1.5,Math.min(1.5,rx-dy*.008));}
-  else if(pts.size===2){const [a,b]=[...pts.values()],d=Math.hypot(a.x-b.x,a.y-b.y);
-    if(lastPinch)dist=Math.max(9,Math.min(30,dist*lastPinch/d));lastPinch=d;}
-});
-['pointerup','pointercancel'].forEach(ev=>stage.addEventListener(ev,e=>{pts.delete(e.pointerId);lastPinch=0;dragging=pts.size>0;}));
-stage.addEventListener('wheel',e=>{e.preventDefault();dist=Math.max(9,Math.min(30,dist*(1+e.deltaY*.001)));},{passive:false});
-
-const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
-(function loop(){if(!still&&!dragging)ry+=.004;frame();requestAnimationFrame(loop);})();
 </script>
 </body>
 </html>
