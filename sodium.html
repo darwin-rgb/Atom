@@ -1,0 +1,300 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Sodium (Na)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070a15;--panel:rgba(22,28,60,.55);--line:rgba(140,155,230,.2);--text:#eceffb;--muted:#8f98c0;--plus:#f4b860;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:radial-gradient(circle at 80% 0,#12183a,#070a15 60%);color:var(--text);font:17px/1.55 Newsreader,Georgia,serif}
+#app{display:grid;grid-template-columns:58fr 42fr;height:100vh;height:100dvh}
+#stage{position:relative;margin:14px;border:1px solid var(--line);border-radius:22px;overflow:hidden;touch-action:none;background:radial-gradient(circle at 50% 46%,#1d2557 0,#0d1230 45%,#05070f 100%);box-shadow:inset 0 0 120px rgba(0,0,0,.65)}
+#stage:before{content:"";position:absolute;inset:-30%;background:radial-gradient(circle at 30% 30%,rgba(255,138,122,.10),transparent 40%),radial-gradient(circle at 70% 65%,rgba(126,110,255,.13),transparent 42%);animation:drift 40s ease-in-out infinite alternate;pointer-events:none}
+@keyframes drift{to{transform:translate(6%,4%) rotate(8deg)}}
+@media(prefers-reduced-motion:reduce){#stage:before{animation:none}}
+canvas{width:100%;height:100%;display:block;position:relative}
+#hint{position:absolute;left:16px;top:14px;font:12px "Space Grotesk",sans-serif;color:var(--muted);pointer-events:none}
+.ov{position:absolute;top:10px;right:10px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.ov button{min-height:32px;padding:5px 11px;font-size:12px;background:rgba(10,14,34,.55);backdrop-filter:blur(8px)}
+#cutbar{position:absolute;left:18px;right:18px;bottom:12px}
+#side{overflow-y:auto;padding:16px 20px 30px 6px}
+.back{color:var(--muted);text-decoration:none;font:13px "Space Grotesk",sans-serif}.back:hover{color:var(--plus)}
+h1{font:700 48px/1.05 "Space Grotesk",sans-serif;letter-spacing:-.03em;margin:10px 0 4px;background:linear-gradient(90deg,#fff,#ffcf8a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font:13px "Space Grotesk",sans-serif;color:var(--muted);margin:0 0 14px}
+section{margin:0 0 14px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(10px)}
+h2{font:500 12px "Space Grotesk",sans-serif;letter-spacing:.09em;text-transform:uppercase;margin:0 0 9px;color:var(--muted)}
+.seg,.btns{display:flex;flex-wrap:wrap;gap:7px}
+button{letter-spacing:.01em;font:600 13.5px "Space Grotesk",sans-serif;color:var(--text);background:transparent;border:1px solid var(--line);border-radius:999px;padding:7px 14px;min-height:36px;cursor:pointer;transition:background .25s,border-color .25s,color .25s}
+button:hover{border-color:var(--plus)}button:focus-visible{outline:2px solid var(--plus);outline-offset:2px}
+button[aria-pressed="true"]{background:var(--plus);color:#1a1300;border-color:var(--plus)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.k{font:12px "Space Grotesk",sans-serif;color:var(--muted)}.v{font:500 15px "Space Grotesk",sans-serif}
+.brow{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}.bl{min-width:26px;line-height:38px;font:14px "Space Grotesk",sans-serif;color:var(--c)}
+.bc{display:flex;flex-direction:column;align-items:center;gap:2px}
+.bx{display:flex;align-items:center;justify-content:center;width:46px;height:38px;border:1px solid var(--line);border-radius:9px;font-size:20px;color:var(--muted);opacity:.55;transition:all .3s}
+.bx.on{border-color:var(--c);color:var(--c);opacity:1;background:rgba(255,255,255,.05);box-shadow:0 0 14px -2px var(--c)}
+.props{margin:0;padding-left:20px}.props li{margin-bottom:7px;font-size:16px}
+.cap{margin:0;font-size:16px;color:#b4bcdc}
+#rad{display:block;width:100%;height:210px;margin-bottom:10px}
+input[type=range]{width:100%;accent-color:var(--plus);height:26px;margin:0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+footer{color:var(--muted);font:12px "Space Grotesk",sans-serif}
+@media(max-width:899px),(max-height:520px){#app{display:block;height:auto}#stage{aspect-ratio:1;margin:12px}#side{overflow:visible;padding:0 12px 24px}}
+</style></head><body><div id="app">
+<div id="stage"><canvas id="c"></canvas><div id="hint">Drag to rotate · pinch or scroll to zoom</div>
+<div class="ov"><button id="rotBtn" aria-pressed="true">Auto-rotate</button><button id="cloudBtn" aria-pressed="false">Cloud view</button><button id="axBtn" aria-pressed="true">Axes</button><button id="resetBtn">Reset</button></div>
+<div id="cutbar"><div class="row"><label class="k" for="cut">Cut the atom open</label><span class="k" id="cutTxt">off</span></div><input id="cut" type="range" min="0" max="100" value="0"></div></div>
+<aside id="side"><a class="back" href="./">← All elements</a><h1>Sodium (Na)</h1><p class="sub">Atomic number 11 · [Ne] 3s¹</p>
+<section><h2>Which orbital?</h2><div class="seg" id="g1"></div><div class="seg" id="g2" style="margin-top:8px"></div>
+<div id="g3box" style="margin-top:12px"><h2>Which 2p orbital?</h2><div class="seg" id="g3"></div></div>
+<h2 style="margin-top:16px">Electrons in the orbitals</h2><div id="boxes"></div>
+<p class="cap" style="font-size:14px">Each box is one orbital. An arrow is an electron, its direction is its spin. Lit boxes are on screen.</p>
+<p class="k" id="radiusTxt" style="margin:8px 0 0"></p></section>
+<section><h2>Where is the electron found?</h2><canvas id="rad"></canvas>
+<p class="cap">Each curve shows how far from the nucleus the electron is likely to be, not in which direction. 2s dips to zero once, 3s twice. The shaded area holds 99% of one electron.</p></section>
+<section><h2>Reading the picture</h2>
+<p class="cap">Sodium has eleven electrons: two in 1s (gold), two in 2s (teal), six in 2p (violet) and one in 3s (coral). The first ten fill the neon core, so the eleventh must start a new shell.</p>
+<p class="cap" style="margin-top:10px">The 3s orbital is far larger than everything inside it. The ten inner electrons shield most of the +11 charge, so this electron feels a pull of only about 2.2. That is why sodium gives it away so easily.</p>
+<p class="cap" style="margin-top:10px">Each shape holds 99% of one electron. It is a boundary, not a path. The dotted spheres mark places where the electron is never found.</p></section>
+<section><div class="grid"><div><div class="k">Element</div><div class="v">Sodium, Z = 11</div></div><div><div class="k">Orbital</div><div class="v" id="oName"></div></div>
+<div><div class="k">Quantum numbers</div><div class="v" id="oQ"></div></div><div><div class="k">Configuration</div><div class="v">1s² 2s² 2p⁶ 3s¹</div></div></div>
+<h2 style="margin-top:16px">About sodium</h2><ul class="props">
+<li>A soft, silvery metal you can cut with a knife. It tarnishes in seconds in air.</li>
+<li>Atomic mass about 22.990 u. Sodium-23 is its only stable isotope.</li>
+<li>Group 1, an alkali metal. Its lone 3s electron is lost easily, forming Na⁺ with neon's arrangement.</li>
+<li>It reacts fiercely with water, giving hydrogen gas and sodium hydroxide.</li>
+<li>Table salt is sodium chloride, NaCl. Sodium street lamps glow yellow-orange.</li></ul></section>
+<footer>Distances are in Bohr radii (a₀), about 0.053 nm each. Shapes are approximate (Slater's rules).</footer></aside></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const ORBITALS=[{id:'1s',n:1,l:0,r:{}},{id:'2s',n:2,l:0,r:{}},{id:'2p',n:2,l:1,r:{}},{id:'3s',n:3,l:0,r:{}}];
+const vis={'1s':true,'2s':true,'2p':true,'3s':true};
+let grp='all',sub='both',po='all';const pv={x:true,y:true,z:true};
+const cv=$('c'),stage=$('stage');
+let W=320,H=320,dpr=1,dist=34,zoom=1,fitR=14,vx=0,vy=0,showAxes=true,dragging=false,pct=99,cloud=false,cutC=99,auto=!matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ---- Sodium physics (radii in Bohr radii, a0). Slater's rules: Zeff 10.70 (1s), 6.85 (2s, 2p), 2.20 (3s); exponent = Zeff / n*.
+// Each s orbital is made orthogonal to the ones inside it (Gram-Schmidt), which creates its radial nodes.
+const A1=10.70,B=3.425,C=2.2/3,DR=.01,NG=2600;
+let NODE=[],N3=[];const PH={'1s':[],'2s':[],'2p':[],'3s':[]},F=[];
+(function(){
+  const dot=(u,v)=>{let t=0;for(let i=0;i<=NG;i++){const r=i*DR;t+=r*r*u[i]*v[i]*DR}return t},
+  nrm=u=>{const a=Math.sqrt(dot(u,u));return u.map(x=>x/a)},
+  mk=f=>{const a=[];for(let i=0;i<=NG;i++)a.push(f(i*DR));return nrm(a)},
+  sb=(u,v)=>{const c=dot(u,v);return u.map((x,i)=>x-c*v[i])},
+  nodes=u=>{const n=[];for(let i=1;i<=1500;i++)if(u[i]*u[i-1]<=0)n.push((i-1)*DR+DR*u[i-1]/(u[i-1]-u[i]));return n};
+  const c1=mk(r=>Math.exp(-A1*r)),c2=mk(r=>r*Math.exp(-B*r)),c3=mk(r=>r*r*Math.exp(-C*r));
+  const d2=nrm(sb(c2,c1)),d3=nrm(sb(sb(c3,c1),d2));
+  for(let i=0;i<=NG;i++){const r=i*DR;PH['1s'].push(r*r*c1[i]*c1[i]);PH['2s'].push(r*r*d2[i]*d2[i]);PH['2p'].push(r*r*c2[i]*c2[i]);PH['3s'].push(r*r*d3[i]*d3[i]);F.push(c2[i]*c2[i]);}
+  NODE=nodes(d2);N3=nodes(d3);
+})();
+const CD={};
+ORBITALS.forEach(o=>{const P=PH[o.id];let t=0;const c=P.map(v=>(t+=v));CD[o.id]=c.map(v=>v/t);
+  if(o.id!=='2p')[99].forEach(p=>{let i=0;while(CD[o.id][i]<p/100)i++;o.r[p]=+(i*DR).toFixed(2);});});
+function samp(C){const u=Math.random();let lo=0,hi=NG;while(lo<hi){const m=(lo+hi)>>1;if(C[m]<u)lo=m+1;else hi=m;}return Math.max(0,(lo+Math.random()-.5)*DR);}
+function mkCloud(C,n){ // s orbitals: points from the true distribution, sorted by distance
+  const a=[];
+  for(let i=0;i<n;i++){const r=samp(C),u=Math.random()*2-1,t=Math.random()*6.2832,q=Math.sqrt(1-u*u);a.push([r,r*q*Math.cos(t),r*u,r*q*Math.sin(t)]);}
+  a.sort((x,y)=>x[0]-y[0]);
+  const pos=new Float32Array(n*3);a.forEach((p,i)=>{pos[i*3]=p[1];pos[i*3+1]=p[2];pos[i*3+2]=p[3];});
+  return {pos,r:a.map(p=>p[0]),n};
+}
+function mkP(n){ // 2p along z: density is R(r)^2 * cos^2(theta); points sorted from densest to thinnest
+  const a=[];
+  for(let i=0;i<n;i++){const r=samp(CD['2p']),u=Math.cbrt(Math.random())*(Math.random()<.5?-1:1),t=Math.random()*6.2832,q=Math.sqrt(1-u*u);
+    a.push([F[Math.min(NG,Math.round(r/DR))]*u*u,r*q*Math.cos(t),r*q*Math.sin(t),r*u]);}
+  a.sort((x,y)=>y[0]-x[0]);
+  const pos=new Float32Array(n*3);a.forEach((p,i)=>{pos[i*3]=p[1];pos[i*3+1]=p[2];pos[i*3+2]=p[3];});
+  return {pos,n};
+}
+const CL={'1s':mkCloud(CD['1s'],3500),'2s':mkCloud(CD['2s'],5000),'3s':mkCloud(CD['3s'],9000)},CPS={x:mkP(6000),y:mkP(6000),z:mkP(6000)};
+const CNT={};['1s','2s','3s'].forEach(k=>{const o=ORBITALS.find(q=>q.id===k);CNT[k]={};[99].forEach(p=>{const c=CL[k];let n=0;while(n<c.n&&c.r[n]<=o.r[p])n++;CNT[k][p]=n;});});
+
+// ---- 2p lobes. A shell is the region where density is above a cut-off level, chosen so it holds 99% of the electron.
+const THR={},LB={};
+(function(){
+  const cells=[];let tot=0;
+  for(let i=0;i<=NG;i+=4)for(let j=0;j<100;j++){const u=(j+.5)/100,w=PH['2p'][i]*u*u;cells.push([F[i]*u*u,w]);tot+=w;}
+  cells.sort((x,y)=>y[0]-x[0]);
+  [99].forEach(p=>{let s=0,k=0;while(k<cells.length&&s/tot<p/100)s+=cells[k++][1];THR[p]=cells[k-1][0];});
+  const ip=F.indexOf(Math.max(...F)),Fm=F[ip],NT=56,NP=72;
+  [99].forEach(p=>{
+    const c=THR[p],tm=Math.acos(Math.sqrt(Math.min(1,c/Fm))),th=[],ra=[],rb=[];
+    for(let i=0;i<=NT;i++){
+      const t=i/NT,T=tm*(1-(1-t)*(1-t)),u=Math.cos(T),g=Math.min(Fm,c/(u*u));let j=ip,k=ip;
+      while(j>0&&F[j]>g)j--;while(k<NG&&F[k]>g)k++;
+      th.push(T);rb.push((j+(g-F[j])/(F[j+1]-F[j]))*DR);ra.push((k-1+(F[k-1]-g)/(F[k-1]-F[k]))*DR);
+    }
+    const P=[],I=[];
+    for(const s of [1,-1])for(const R of [ra,rb])for(let i=0;i<=NT;i++)for(let j=0;j<NP;j++){
+      const f=j/NP*6.2832,st=Math.sin(th[i]);P.push(R[i]*st*Math.cos(f),R[i]*st*Math.sin(f),s*R[i]*Math.cos(th[i]));}
+    for(let q=0;q<4;q++){const o=q*(NT+1)*NP;
+      for(let i=0;i<NT;i++)for(let j=0;j<NP;j++){const a=o+i*NP+j,b=o+i*NP+(j+1)%NP,cc=o+(i+1)*NP+j,d=o+(i+1)*NP+(j+1)%NP;I.push(a,cc,b,b,cc,d);}}
+    LB[p]={P,I,tip:ra[0]};
+  });
+})();
+// point the 2p along x, y or z by swapping coordinates
+function pm(d,s,o){for(let i=0;i<s.length;i+=3){const x=s[i],y=s[i+1],z=s[i+2];d[i]=o==='x'?z:x;d[i+1]=o==='x'?x:o==='y'?z:y;d[i+2]=(o==='x'||o==='y')?y:z;}}
+
+// ---- Radial graph: chance of finding the electron in a thin layer at each distance
+const COL={'1s':{hex:'#f4b860',fill:'rgba(244,184,96,.30)'},'2s':{hex:'#5fd0c4',fill:'rgba(95,208,196,.30)'},'2p':{hex:'#cc85f2',fill:'rgba(204,133,242,.30)'},'3s':{hex:'#ff8a7a',fill:'rgba(255,138,122,.30)'}};
+const PM={},PK={};ORBITALS.forEach(o=>{PM[o.id]=Math.max(...PH[o.id]);PK[o.id]=PH[o.id].indexOf(PM[o.id])*DR;});
+function rr(o,p){let i=0;while(CD[o.id][i]<p/100)i++;return i*DR;}
+const rc=$('rad'),rg=rc.getContext('2d');
+function drawRad(){
+  const w=rc.clientWidth||300,h=190,d=Math.min(window.devicePixelRatio||1,2);
+  rc.width=w*d;rc.height=h*d;rg.setTransform(d,0,0,d,0,0);rg.clearRect(0,0,w,h);
+  const X0=14,X1=w-12,Y0=h-32,Y1=14,XM=16,px=r=>X0+(X1-X0)*r/XM,ks=ORBITALS.filter(o=>vis[o.id]);
+  rg.font='12px "Space Grotesk",sans-serif';
+  rg.strokeStyle='#8f98c0';rg.lineWidth=1;rg.beginPath();rg.moveTo(X0,Y0);rg.lineTo(X1,Y0);rg.stroke();
+  rg.textAlign='center';rg.fillStyle='#8f98c0';for(let t=0;t<=XM;t+=2)rg.fillText(t,px(t),Y0+16);
+  rg.fillText('distance from the nucleus (a\u2080)',(X0+X1)/2,h-4);
+  ks.forEach(o=>{
+    const P=PH[o.id],py=v=>Y0-(Y0-Y1)*v/(PM[o.id]*1.18),R=rr(o,pct),c=COL[o.id],iR=Math.round(R/DR);
+    rg.beginPath();rg.moveTo(px(0),py(0));for(let i=0;i<=iR;i+=2)rg.lineTo(px(i*DR),py(P[i]));rg.lineTo(px(iR*DR),py(P[iR]));rg.lineTo(px(iR*DR),py(0));rg.closePath();
+    rg.fillStyle=c.fill;rg.fill();
+    rg.strokeStyle=c.hex;rg.lineWidth=2;rg.beginPath();
+    for(let i=0;i<=XM/DR;i+=2){const x=px(i*DR),y=py(P[i]);i?rg.lineTo(x,y):rg.moveTo(x,y);}rg.stroke();
+    [99].forEach(p=>{const r=rr(o,p),x=px(r),on=p===pct;rg.setLineDash([4,4]);rg.strokeStyle=on?c.hex:'rgba(143,152,192,.4)';rg.lineWidth=1;
+      rg.beginPath();rg.moveTo(x,Y0);rg.lineTo(x,py(P[Math.round(r/DR)]));rg.stroke();rg.setLineDash([]);
+      if(on){rg.textAlign='center';rg.fillStyle=c.hex;rg.fillText(p+'%',x,Y0-6);}});
+    const pk=PK[o.id];rg.fillStyle='#fff';rg.beginPath();rg.arc(px(pk),py(PM[o.id]),3.5,0,7);rg.fill();
+    rg.textAlign='left';rg.fillStyle='#e9ecf8';
+    rg.fillText(ks.length>1?o.id+': '+pk.toFixed(2):'most likely: '+pk.toFixed(2)+' a\u2080',px(pk)+9,py(PM[o.id])-6);
+  });
+}
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>drawRad());
+
+// ---- 3D engine (WebGL, three.js)
+let GL=null;
+try{
+  if(!window.THREE)throw 0;
+  const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+  const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(45,1,.1,300),world=new THREE.Group();scene.add(world);
+  const CUT={value:10},fade={},shells={};const KS=['1s','2s','2px','2py','2pz','3s'],OID=k=>k.slice(0,2),kv=k=>k.length===2?vis[k]:vis['2p']&&pv[k[2]];let fc={};KS.forEach(k=>fc[k]=0);
+  r.localClippingEnabled=true;
+  const clipPlane=new THREE.Plane(new THREE.Vector3(-1,0,0),10),basePlane=clipPlane.clone();
+  const TINT={'1s':{99:[.98,.72,.36]},'2s':{99:[.36,.82,.76]},'2p':{99:[.80,.52,.95]},'3s':{99:[1,.54,.48]}},gain={99:1};
+  const VS='varying vec3 n;varying vec3 v;varying vec3 vP;void main(){vP=position;n=normalize(normalMatrix*normal);vec4 m=modelViewMatrix*vec4(position,1.);v=normalize(-m.xyz);gl_Position=projectionMatrix*m;}';
+  const FS='uniform vec3 c;uniform float k;uniform float fd;uniform float cut;varying vec3 n;varying vec3 v;varying vec3 vP;void main(){if(vP.x>cut)discard;vec3 N=normalize(n),V=normalize(v);float f=1.-abs(dot(N,V));'+
+    'float a=(.10+.80*pow(f,2.3))*k*.6;vec3 L=normalize(vec3(.5,.7,.6));float s=pow(max(dot(reflect(-L,N),V),0.),28.)*.35*k;if(!gl_FrontFacing){a*=.55;s*=.4;}float e=smoothstep(.07,0.,abs(vP.x-cut))*.5;gl_FragColor=vec4(c+s+e*.3,(a+s*.5+e)*fd);}';
+  KS.forEach(k=>[99].forEach(p=>{
+    const id=OID(k),o=ORBITALS.find(q=>q.id===id);
+    const m=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,vertexShader:VS,fragmentShader:FS,
+      uniforms:{c:{value:new THREE.Color(...TINT[id][p])},k:{value:gain[p]},fd:{value:1},cut:CUT}});
+    let g;
+    if(id==='2p'){g=new THREE.BufferGeometry();const pos=new Float32Array(LB[p].P.length);pm(pos,LB[p].P,k[2]);
+      g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setIndex(LB[p].I);g.computeVertexNormals();}
+    else g=new THREE.SphereGeometry(o.r[p],96,72);
+    const s=new THREE.Mesh(g,m);shells[k+p]=s;fade[k+p]=1;world.add(s);
+  }));
+  // Dotted sphere where the 2s electron is never found (its node)
+  const NS=[[NODE[0],'2s',0x7ee6da],[N3[0],'3s',0xff9a8a],[N3[1],'3s',0xff9a8a]].map(([r,id,c])=>{const m=new THREE.Mesh(new THREE.SphereGeometry(r,28,20),new THREE.MeshBasicMaterial({color:c,wireframe:true,transparent:true,opacity:.26,depthWrite:false,clippingPlanes:[clipPlane]}));m.userData.id=id;world.add(m);return m;});
+  // Flat disc where the 2p electron is never found (its nodal plane)
+  const nodeP=new THREE.Mesh(new THREE.CircleGeometry(9,64),new THREE.MeshBasicMaterial({color:0xe2b8ff,transparent:true,opacity:.14,side:THREE.DoubleSide,depthWrite:false,clippingPlanes:[clipPlane]}));world.add(nodeP);
+  // Soft glow at the centre
+  const gc=document.createElement('canvas');gc.width=gc.height=128;const gx=gc.getContext('2d');
+  const gg=gx.createRadialGradient(64,64,0,64,64,64);gg.addColorStop(0,'rgba(255,236,200,.9)');gg.addColorStop(.35,'rgba(244,184,96,.28)');gg.addColorStop(1,'rgba(244,184,96,0)');
+  gx.fillStyle=gg;gx.fillRect(0,0,128,128);
+  const core=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(gc),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true}));
+  core.scale.set(2.8,2.8,1);world.add(core);
+  // Axes and labels
+  const axesG=new THREE.Group();world.add(axesG);const L=14;
+  [[1,0,0,'x'],[0,1,0,'y'],[0,0,1,'z']].forEach(a=>{
+    const v=new THREE.Vector3(a[0],a[1],a[2]);
+    axesG.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([v.clone().multiplyScalar(-L),v.clone().multiplyScalar(L)]),new THREE.LineBasicMaterial({color:0x8f98c0,transparent:true,opacity:.6})));
+    (document.fonts&&document.fonts.ready||Promise.resolve()).then(()=>{
+      const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');
+      x.fillStyle='#d5dbf5';x.font='italic 500 42px Newsreader,Georgia,serif';x.textAlign='center';x.textBaseline='middle';x.fillText(a[3],32,34);
+      const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false,transparent:true}));
+      sp.position.copy(v.clone().multiplyScalar(L+1.6));sp.scale.set(2.4,2.4,1);axesG.add(sp);
+    });
+  });
+  world.add(new THREE.Mesh(new THREE.SphereGeometry(.2,16,12),new THREE.MeshBasicMaterial({color:0xffffff})));
+  // Starfield (moves slower than the atom, which gives a sense of depth)
+  const N=700,pos=new Float32Array(N*3);
+  for(let i=0;i<N;i++){const u=Math.random()*2-1,t=Math.random()*6.283,rad=Math.sqrt(1-u*u),d=70+Math.random()*50;pos[i*3]=d*rad*Math.cos(t);pos[i*3+1]=d*u;pos[i*3+2]=d*rad*Math.sin(t);}
+  const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const stars=new THREE.Points(sg,new THREE.PointsMaterial({size:.4,color:0xaab4ff,transparent:true,opacity:.75,depthWrite:false}));scene.add(stars);
+  const sc=document.createElement('canvas');sc.width=sc.height=64;const sx=sc.getContext('2d'),sq=sx.createRadialGradient(32,32,0,32,32,32);sq.addColorStop(0,'rgba(255,255,255,1)');sq.addColorStop(.4,'rgba(255,255,255,.45)');sq.addColorStop(1,'rgba(255,255,255,0)');sx.fillStyle=sq;sx.fillRect(0,0,64,64);const SOFT=new THREE.CanvasTexture(sc);
+  const CLD={},CC={'1s':0xffd9a0,'2s':0xa8f0e6,'2p':0xe2b8ff,'3s':0xffb0a0},CS={'1s':.14,'2s':.2,'2p':.22,'3s':.34};
+  KS.forEach(k=>{const id=OID(k),g=new THREE.BufferGeometry();let a;
+    if(id==='2p'){a=new Float32Array(CPS[k[2]].pos.length);pm(a,CPS[k[2]].pos,k[2]);}else a=CL[id].pos;
+    g.setAttribute('position',new THREE.BufferAttribute(a,3));
+    const pts=new THREE.Points(g,new THREE.PointsMaterial({size:CS[id],map:SOFT,color:CC[id],transparent:true,opacity:.6,blending:THREE.AdditiveBlending,depthWrite:false,clippingPlanes:[clipPlane]}));
+    pts.visible=false;pts.frustumCulled=false;world.add(pts);CLD[k]={g,pts};});
+  GL={
+    spin(a,b){const qy=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),a),qx=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),b);world.quaternion.premultiply(qy).premultiply(qx).normalize();},
+    reset(){world.quaternion.setFromEuler(new THREE.Euler(.45,-.6,0));},
+    size(){r.setPixelRatio(dpr);r.setSize(W,H,false);cam.aspect=W/H;cam.updateProjectionMatrix();},
+    draw(){
+      const T=performance.now()/1000,tn=.4142*Math.min(1,W/H);dist+=(fitR/Math.sin(Math.atan(tn))*1.15*zoom-dist)*.07;stars.quaternion.identity().slerp(world.quaternion,.25);core.scale.setScalar(2.8+.35*Math.sin(T*1.2));
+      CUT.value=cutC;world.updateMatrixWorld();basePlane.constant=cutC;clipPlane.copy(basePlane).applyMatrix4(world.matrixWorld);
+      KS.forEach(k=>{const on=kv(k);
+        [99].forEach(p=>{const q=k+p,t=(!cloud&&on&&p<=pct)?1:0;fade[q]+=(t-fade[q])*.14;shells[q].visible=fade[q]>.01;shells[q].material.uniforms.fd.value=fade[q];shells[q].material.uniforms.k.value=.95+.09*Math.sin(T*1.2+k.length);shells[q].scale.setScalar(.94+.06*fade[q]);});
+        fc[k]+=((cloud&&on?1:0)-fc[k])*.14;const c=CLD[k];c.pts.visible=fc[k]>.01;c.pts.material.opacity=.85*fc[k];
+        c.g.setDrawRange(0,k[1]==='p'?Math.round(CPS[k[2]].n*pct/100):CNT[k][pct]);});
+      NS.forEach(m=>m.visible=vis[m.userData.id]&&!cloud);
+      const one=vis['2p']&&(pv.x?1:0)+(pv.y?1:0)+(pv.z?1:0)===1;nodeP.visible=one&&!cloud;if(one)nodeP.rotation.set(pv.y?Math.PI/2:0,pv.x?Math.PI/2:0,0);
+      axesG.visible=showAxes;cam.position.set(0,0,dist);r.render(scene,cam);
+    }
+  };
+}catch(e){GL=null;$('hint').textContent='This device cannot run the 3D engine, so the picture cannot be shown.';}
+
+GL&&GL.reset();
+function resize(){
+  const b=stage.getBoundingClientRect();W=Math.max(200,b.width||320);H=Math.max(200,b.height||W);
+  dpr=Math.min(window.devicePixelRatio||1,2);if(GL)GL.size();drawRad();
+}
+addEventListener('resize',resize);
+if(window.ResizeObserver)new ResizeObserver(resize).observe(stage);
+resize();setTimeout(resize,300);
+
+// ---- UI
+function mk(box,items,cur,fn){box.innerHTML='';items.forEach(([k,t])=>{const b=document.createElement('button');b.textContent=t;b.setAttribute('aria-pressed',k===cur);b.onclick=()=>fn(k);box.appendChild(b);});}
+function ui(){
+  mk($('g1'),[['s','s orbital'],['p','p orbital'],['all','All']],grp,k=>{grp=k;sub=k==='s'?'both':'2p';ui();});
+  $('g2').style.display=grp==='all'?'none':'';
+  if(grp==='s')mk($('g2'),[['1s','1s'],['2s','2s'],['3s','3s'],['both','All s']],sub,k=>{sub=k;ui();});
+  if(grp==='p')mk($('g2'),[['2p','2p']],sub,k=>{sub=k;ui();});
+  const sv=k=>grp==='all'||(grp==='s'&&(sub==='both'||sub===k));vis['1s']=sv('1s');vis['2s']=sv('2s');vis['3s']=sv('3s');vis['2p']=grp!=='s';
+  $('g3box').style.display=vis['2p']?'':'none';
+  pv.x=po==='x'||po==='all';pv.y=po==='y'||po==='all';pv.z=po==='z'||po==='all';
+  mk($('g3'),[['x','Along x'],['y','Along y'],['z','Along z'],['all','All three']],po,k=>{po=k;ui();});
+  info();
+}
+$('axBtn').onclick=function(){showAxes=this.getAttribute('aria-pressed')!=='true';this.setAttribute('aria-pressed',showAxes);this.textContent=showAxes?'Axes on':'Axes off';};
+$('cloudBtn').onclick=function(){cloud=!cloud;this.setAttribute('aria-pressed',cloud);};
+$('cut').oninput=function(){const v=+this.value;cutC=v?fitR*(1-v/100):99;$('cutTxt').textContent=v?v+'%':'off';};
+$('rotBtn').setAttribute('aria-pressed',auto);
+$('rotBtn').onclick=function(){auto=!auto;this.setAttribute('aria-pressed',auto);};
+$('resetBtn').onclick=()=>{GL&&GL.reset();vx=vy=0;zoom=1;};
+function info(){
+  const ks=ORBITALS.filter(o=>vis[o.id]),many=ks.length>1;
+  $('oName').textContent=ks.map(o=>o.id==='2p'?'2p ('+(po==='all'?'x, y and z':'along '+po)+')':o.id).join(', ');
+  $('oQ').textContent=ks.map(o=>(many?o.id+': ':'')+`n=${o.n}, l=${o.l}, `+(o.id==='2p'?'m=+1 and −1 mixed':'m=0')).join(' · ');
+  $('radiusTxt').textContent=`Reach holding ${pct}%: `+ks.map(o=>o.id==='2p'?`2p lobe tip ${LB[pct].tip.toFixed(2)} a\u2080`:`${o.id} ${o.r[pct]} a\u2080`).join(', ');
+  fitR=Math.max(...ks.map(o=>o.id==='2p'?LB[99].tip:o.r[99]));boxes();drawRad();
+}
+function boxes(){
+  const b=(t,on,l)=>`<div class="bc"><span class="bx${on?' on':''}">${t}</span><span class="k">${l||''}</span></div>`;
+  const row=(n,c,x)=>`<div class="brow" style="--c:${c}"><span class="bl">${n}</span>${x}</div>`;
+  $('boxes').innerHTML=row('1s','#f4b860',b('↑↓',vis['1s']))+row('2s','#5fd0c4',b('↑↓',vis['2s']))+
+    row('2p','#cc85f2',b('↑↓',vis['2p']&&pv.x,'x')+b('↑↓',vis['2p']&&pv.y,'y')+b('↑↓',vis['2p']&&pv.z,'z'))+row('3s','#ff8a7a',b('↑',vis['3s']));
+}
+ui();
+
+// ---- Drag to rotate, pinch or wheel to zoom
+const pts=new Map();let lastPinch=0;
+stage.addEventListener('pointerdown',e=>{if(e.target.closest('button,input,label'))return;stage.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});dragging=true;vx=vy=0;});
+stage.addEventListener('pointermove',e=>{
+  const p=pts.get(e.pointerId);if(!p)return;
+  const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
+  if(pts.size===1){vx=dx*.008;vy=dy*.008;GL&&GL.spin(vx,vy);}
+  else if(pts.size===2){const [a,b]=[...pts.values()],d=Math.hypot(a.x-b.x,a.y-b.y);
+    if(lastPinch)zoom=Math.max(.4,Math.min(2.5,zoom*lastPinch/d));lastPinch=d;}
+});
+['pointerup','pointercancel'].forEach(ev=>stage.addEventListener(ev,e=>{pts.delete(e.pointerId);lastPinch=0;dragging=pts.size>0;}));
+stage.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.4,Math.min(2.5,zoom*(1+e.deltaY*.001)));},{passive:false});
+(function loop(){if(!dragging){GL&&GL.spin(vx+(auto?.0035:0),vy);vx*=.95;vy*=.95;}if(GL)GL.draw();requestAnimationFrame(loop);})();
+</script>
+</body>
+</html>
